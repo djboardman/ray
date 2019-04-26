@@ -1,4 +1,5 @@
 use std::ops::{Add, Sub, Neg, Mul, Div};
+use std::cmp;
 
 const EPSILON: f32 = 0.00001;
 
@@ -25,6 +26,10 @@ impl RayTuple {
 
     pub fn zero_vector() -> RayTuple {
         RayTuple::vector(0.0, 0.0, 0.0)
+    }
+
+    pub fn color(r: f32, g: f32, b: f32) -> RayTuple {
+        RayTuple::new(r, g, b, 0.0)
     }
   
     pub fn is_point(&self) -> bool {
@@ -53,6 +58,19 @@ impl RayTuple {
                          self.z * &other.x - self.x * &other.z,
                          self.x * &other.y - self.y * &other.x)   
     }
+
+    pub fn scaled(&self, min: isize, max: isize) -> String {
+        let x = RayTuple::scale(self.x, min, max);
+        let y = RayTuple::scale(self.y, min, max);
+        let z = RayTuple::scale(self.z, min, max);
+        let s = format!("{} {} {}", x, y, z);
+        return s;
+    }
+
+    fn scale(val: f32, min: isize, max: isize) -> isize {
+        cmp::max(0, cmp::min(((max - min) as f32 * val).round() as isize, max))
+    }
+
 }
 
 impl PartialEq for RayTuple {
@@ -84,6 +102,14 @@ impl Neg for RayTuple {
 
     fn neg(self) -> RayTuple {
         RayTuple::zero_vector() - self
+    }
+}
+
+impl Mul for RayTuple {
+    type Output = RayTuple;
+
+    fn mul(self, rhs: RayTuple) -> RayTuple {
+        RayTuple::color(self.x * rhs.x, self.y * rhs.y, self.z * rhs.z)
     }
 }
 
@@ -227,5 +253,32 @@ mod tests {
         let b = RayTuple::vector(2.0, 3.0, 4.0);
         assert_eq!(a.cross(&b), RayTuple::vector(-1.0, 2.0, -1.0));
         assert_eq!(b.cross(&a), RayTuple::vector(1.0, -2.0, 1.0));
+    }
+
+    #[test]
+    fn add_colors() {
+        let c1 = RayTuple::color(0.9, 0.6, 0.75);
+        let c2 = RayTuple::color(0.7, 0.1, 0.25);
+        assert_eq!(c1 + c2, RayTuple::color(1.6, 0.7, 1.0));
+    }
+
+    #[test]
+    fn sub_colors() {
+        let c1 = RayTuple::color(0.9, 0.6, 0.75);
+        let c2 = RayTuple::color(0.7, 0.1, 0.25);
+        assert_eq!(c1 - c2, RayTuple::color(0.2, 0.5, 0.5));
+    }
+
+    #[test]
+    fn scalar_mult_colors() {
+        let c1 = RayTuple::color(0.2, 0.3, 0.4);
+        assert_eq!(c1*2.0, RayTuple::color(0.4, 0.6, 0.8));
+    }
+
+    #[test]
+    fn mult_colors() {
+        let c1 = RayTuple::color(1.0, 0.2, 0.4);
+        let c2 = RayTuple::color(0.9, 1.0, 0.1);
+        assert_eq!(c1 * c2, RayTuple::color(0.9, 0.2, 0.04));
     }
 }
