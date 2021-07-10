@@ -5,3 +5,4 @@ authors = ["vagrant"]
 edition = "2018"
 
 [dependencies]
+substring = "1.4.5"

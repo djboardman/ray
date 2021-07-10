@@ -71,6 +71,8 @@ impl RayTuple {
         cmp::max(0, cmp::min(((max - min) as f32 * val).round() as isize, max))
     }
 
+
+
 }
 
 impl PartialEq for RayTuple {
